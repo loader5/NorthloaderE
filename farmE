@@ -1,0 +1,460 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("Ellesmere", "DarkTheme")
+
+-- ============================================
+-- MAIN
+-- ============================================
+
+local Main = Window:NewTab("Functions")
+local MainSection = Main:NewSection("Reset Before Teleporting")
+
+-- ============================================
+-- INSTANT CLAIM
+-- ============================================
+
+MainSection:NewToggle("InstantClaim", "Toggle instant claiming", function(state)
+
+    if state then
+
+        _G.InstantClaim = true
+
+        task.spawn(function()
+
+            while _G.InstantClaim do
+
+                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+
+                    if not _G.InstantClaim then
+                        break
+                    end
+
+                    game:GetService("ReplicatedStorage").DefinEvents.InstanceRequestFunction:InvokeServer(
+                        player,
+                        "CompleteBounty"
+                    )
+
+                end
+
+                task.wait()
+
+            end
+
+        end)
+
+    else
+
+        _G.InstantClaim = false
+
+    end
+
+end)
+
+-- ============================================
+-- PLATFORM
+-- ============================================
+
+MainSection:NewButton("Set Platform", "Teleport", function()
+
+    local part = Instance.new("Part")
+
+    part.Size = Vector3.new(20, 3, 25)
+    part.CFrame = CFrame.new(1884, 96, -2400)
+    part.Anchored = true
+    part.Parent = workspace
+
+end)
+
+-- ============================================
+-- TP OUTSIDE JAIL - START
+-- ============================================
+
+MainSection:NewButton("TP Outside Jail - Start", "Teleport", function()
+
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character
+
+    if Character and Character:FindFirstChild("HumanoidRootPart") then
+
+        Character.HumanoidRootPart.CFrame =
+            CFrame.new(1884, 101, -2400)
+
+    end
+
+end)
+
+-- ============================================
+-- TP OUTSIDE JAIL - FARM
+-- ============================================
+
+MainSection:NewToggle(
+    "TP Outside Jail - Farm",
+    "Toggles automatic teleport and reset",
+    function(state)
+
+        if state then
+
+            _G.AutoTP = true
+
+            task.spawn(function()
+
+                while _G.AutoTP do
+
+                    local Players = game:GetService("Players")
+                    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+                    local Character = Players.LocalPlayer.Character
+                    local HRP =
+                        Character and Character:FindFirstChild("HumanoidRootPart")
+
+                    if HRP then
+
+                        local targetPosition =
+                            Vector3.new(1884, 101, -2400)
+
+                        HRP.CFrame = CFrame.new(targetPosition)
+
+                        task.wait(2)
+
+                        if not _G.AutoTP then
+                            break
+                        end
+
+                        if (HRP.Position - targetPosition).Magnitude <= 10 then
+
+                            local args = {
+                                [1] = ReplicatedStorage.Interacting,
+                                [2] = "Reset"
+                            }
+
+                            ReplicatedStorage.DefinEvents
+                                .InstanceRequestFunction
+                                :InvokeServer(unpack(args))
+
+                        end
+
+                    end
+
+                    task.wait(1)
+
+                end
+
+            end)
+
+        else
+
+            _G.AutoTP = false
+
+        end
+
+    end
+)
+
+-- ============================================
+-- BOARD TP
+-- ============================================
+
+MainSection:NewButton("Board TP", "Teleport", function()
+
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character
+
+    if Character and Character:FindFirstChild("HumanoidRootPart") then
+
+        Character.HumanoidRootPart.CFrame =
+            CFrame.new(-126, 56, -2581)
+
+    end
+
+end)
+
+-- ============================================
+-- NORMAL PLAYER JOIN NOTIFIER
+-- ============================================
+
+local Players = game:GetService("Players")
+
+local function CreateNotification(player)
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "JoinNotifier"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game:GetService("CoreGui")
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 300, 0, 90)
+    Frame.Position = UDim2.new(1, -320, 1, -120)
+    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = Frame
+
+    local Image = Instance.new("ImageLabel")
+    Image.Size = UDim2.new(0, 70, 0, 70)
+    Image.Position = UDim2.new(0, 10, 0, 10)
+    Image.BackgroundTransparency = 1
+
+    Image.Image =
+        "https://www.roblox.com/headshot-thumbnail/image?userId="
+        .. player.UserId
+        .. "&width=150&height=150&format=png"
+
+    Image.Parent = Frame
+
+    local Text = Instance.new("TextLabel")
+
+    Text.Size = UDim2.new(0, 200, 0, 70)
+    Text.Position = UDim2.new(0, 90, 0, 10)
+
+    Text.BackgroundTransparency = 1
+    Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Text.TextScaled = true
+    Text.Font = Enum.Font.GothamBold
+
+    Text.Text = player.Name .. " joined"
+
+    Text.Parent = Frame
+
+    task.delay(5, function()
+
+        if ScreenGui then
+            ScreenGui:Destroy()
+        end
+
+    end)
+
+end
+
+Players.PlayerAdded:Connect(function(player)
+
+    CreateNotification(player)
+
+end)
+
+-- ============================================
+-- ALERT USERNAME SYSTEM
+-- ============================================
+
+local AlertPlayers = {
+
+    "MijiuSad",
+    "atsuko_0o",
+    "triangle1009",
+    "brittate",
+    "CorgiSays",
+    "Blackwolf551212",
+    "shane_64",
+    "shed_pood1",
+    "Ziruem",
+    "kinqdiff",
+    "dimondlaz",
+    "RebelliousGreen",
+    "Dominusmasters",
+    "CutePikachu72007",
+    "Spalitz",
+    "zaddyshinobi",
+    "TarmanBrimstone",
+    "DrDouky",
+    "Jaqsito",
+    "VEN_AUX",
+    "Techn0Waffles",
+    "WistfullAZ0990",
+    "AdaqmRobloxcom",
+    "Timyerz",
+    "LazarusAutumn",
+    "BlueCyclone16",
+    "ArthurSteyr",
+    "zenzgarden",
+    "SilverDiamondXZ",
+    "CorruptPoke",
+    "zombiesylar",
+    "littleotty",
+    "CaptainOfArma",
+    "PapaTheBanished",
+    "AuthByte",
+    "H7DZE",
+    "youganda214",
+    "ravenravener",
+    "B1_00048",
+    "TattleTail4Lif",
+    "EnvyMaestro",
+    "LowellBestiaFortis",
+    "velodiff",
+    "GivinItForTimbits",
+    "TyberiusCorvus",
+    "MLGPeanut3",
+    "northerlyd",
+    "nycolasmoraes_remade",
+    "DarkWolfAzaro",
+    "infernecc",
+    "StraightScared",
+    "Xolkar",
+    "SaintHendriix",
+    "RockysValor",
+    "LazyCossack",
+    "IBeefyI",
+    "Youglyface5323",
+    "StormcloakGuard",
+    "Mara_dreyev",
+    "solarian9",
+    "ArchxvieSterling",
+    "ToyoKogyo",
+    "WistfulAZ0990",
+    "Diesgoshp",
+    "Im345",
+    "BaneLegacy",
+    "MijiuCrystal",
+    "RangerCulture",
+    "Dylanscoops200",
+    "Uggels",
+    "morata999990",
+    "NorthwindStudio",
+    "The_lnnovator",
+    "NeverLegacy",
+    "Voile",
+    "Aetheresii",
+    "fatheroux",
+    "SLOREXXXX",
+    "diepie201",
+    "Stonesk1ng",
+
+    -- Previously added
+    "hunter123sir",
+    "Faye_4658",
+    "Vikingr_Doge",
+    "OmerGM",
+    "IamAgst"
+
+}
+
+-- ============================================
+-- ALERT PLAYER CHECK
+-- ============================================
+
+local function IsAlertPlayer(player)
+
+    local username = string.lower(player.Name)
+
+    for _, name in pairs(AlertPlayers) do
+
+        if username == string.lower(name) then
+            return true
+        end
+
+    end
+
+    return false
+
+end
+
+-- ============================================
+-- LOUD ALARM
+-- ============================================
+
+local function PlayAlarm()
+
+    local Sound = Instance.new("Sound")
+
+    Sound.SoundId = "rbxassetid://9118828562"
+    Sound.Volume = 10
+    Sound.Looped = false
+    Sound.Parent = game:GetService("SoundService")
+
+    Sound:Play()
+
+    task.delay(8, function()
+
+        if Sound then
+            Sound:Destroy()
+        end
+
+    end)
+
+end
+
+-- ============================================
+-- ALERT POPUP
+-- ============================================
+
+local function CreateAlert(player)
+
+    local ScreenGui = Instance.new("ScreenGui")
+
+    ScreenGui.Name = "ALERT_PLAYER"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game:GetService("CoreGui")
+
+    local Frame = Instance.new("Frame")
+
+    Frame.Size = UDim2.new(0, 350, 0, 100)
+    Frame.Position = UDim2.new(1, -370, 1, -150)
+    Frame.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 10)
+    Corner.Parent = Frame
+
+    local Text = Instance.new("TextLabel")
+
+    Text.Size = UDim2.new(1, 0, 1, 0)
+    Text.BackgroundTransparency = 1
+    Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Text.TextScaled = true
+    Text.Font = Enum.Font.GothamBold
+
+    Text.Text =
+        "⚠ ALERT PLAYER JOINED ⚠\n"
+        .. player.Name
+
+    Text.Parent = Frame
+
+    task.delay(8, function()
+
+        if ScreenGui then
+            ScreenGui:Destroy()
+        end
+
+    end)
+
+end
+
+-- ============================================
+-- ALERT PLAYER -> ALARM + KICK
+-- ============================================
+
+Players.PlayerAdded:Connect(function(player)
+
+    if IsAlertPlayer(player) then
+
+        PlayAlarm()
+        CreateAlert(player)
+
+        -- Brief delay so the alert can appear
+        task.wait(0.5)
+
+        -- Kick your own client
+        Players.LocalPlayer:Kick(
+            "Alert player detected: " .. player.Name
+        )
+
+    end
+
+end)
+
+-- ============================================
+-- ANTI AFK
+-- ============================================
+
+wait(0.1)
+
+loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/hassanxzayn-lua/Anti-afk/main/antiafkbyhassanxzyn"
+))()
+
+wait(0.1)
